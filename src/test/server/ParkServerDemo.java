@@ -6,5 +6,6 @@ public class ParkServerDemo {
     public static void main(String[] args)
     {
         BeanContext.startPark();
+        System.out.println("Park is ready");
     }
 }

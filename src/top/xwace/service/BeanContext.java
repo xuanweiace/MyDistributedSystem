@@ -1,5 +1,6 @@
 package top.xwace.service;
 
+import top.xwace.ObjValue;
 import top.xwace.park.Park;
 
 import java.rmi.RemoteException;
@@ -81,6 +82,27 @@ public class BeanContext extends ServiceContext
          */
         String[][] parkcfg = {{"localhost", "1888"},{"localhost", "1889"}};
         startPark(parkcfg[0][0], Integer.parseInt(parkcfg[0][1]), parkcfg);
+    }
+    public static void startWorker(String host, int port, String sn, String workerType) {
+        try {
+            startService(host, port, sn, new WorkerService(host, port, sn, workerType));
+            //这里是provider提供一个worker，系统去启服务 的模式。暂时不用
+//            startService(host, port, sn, new WorkerService(host, port, "myworker"));
+        } catch (RemoteException e) {
+            System.out.println("startWorker 出错了");
+        }
+    }
+    public static Worker getWorkerLocal(String sn){
+        Park park = getPark();
+        ObjValue service = null;
+        try {
+            service = park.findService(sn);
+        } catch (RemoteException e) {
+            System.out.println("getWorkerLocal 出错了");
+        }
+        String host = service.getString("host");
+        int port = service.getStringInt("port");
+        return getService(Worker.class, host, port, sn);
     }
 
 //    static void startInetServer()

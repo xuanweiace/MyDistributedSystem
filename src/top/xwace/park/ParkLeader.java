@@ -44,4 +44,14 @@ public class ParkLeader {
 //        }
         return true;
     }
+
+    public ObjValue findService(String sn) {
+        return findBySn(sn);
+    }
+    private ObjValue findBySn(String sn) {
+        for (int i = 0; i < registrationList.size(); i++) {
+            if(registrationList.get(i).getString("sn").equals(sn)) return registrationList.get(i);
+        }
+        return null;
+    }
 }

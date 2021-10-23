@@ -49,4 +49,10 @@ public class ParkService extends UnicastRemoteObject implements Park {
         pl.unregisServiceObj(objValue);
         return false;
     }
+
+    @Override
+    //host:port-name
+    public ObjValue findService(String sn) throws RemoteException {
+        return pl.findService(sn);
+    }
 }

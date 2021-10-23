@@ -13,13 +13,18 @@ public class BeanService {
     {
         try{
             LocateRegistry.getRegistry(TPYDK).list();
-            System.out.println("LocateRegistry.getRegistry(TPYDK).list())成功！！");
+            System.out.println("LocateRegistry.getRegistry(TPYDK).list())成功！！说明当前端口已被占用，putBean失败");
         }catch(Exception ex){
             try{
                 System.out.println("BeanService.putBean()异常了，说明该端口没有被占用，可以正常put");
-                UnicastRemoteObject.exportObject(paobj, 0);
+//                UnicastRemoteObject.exportObject(paobj, 0);
+                System.out.println("正在createRegistry");
                 Registry rgsty = LocateRegistry.createRegistry(TPYDK);//getRegistry(TPYDK);
+                System.out.println("createRegistry成功");
+
+                System.out.println("正在rgsty.rebind");
                 rgsty.rebind(rmname,paobj);
+                System.out.println("rgsty.rebind成功");
             }
             catch(Exception e){
                 System.out.println("出错!");
@@ -34,9 +39,14 @@ public class BeanService {
 //            if(ConfigContext.getTMOT()>0l) //timeout
 //                System.setProperty(ConfigContext.getQSXYSJ(), ConfigContext.getTMOT()+"");
             System.out.println("zxzDebug: [BeanService.getBean()]: " + "TPYYM: "+TPYYM+", TPYDK: "+TPYDK+", rmname: "+rmname);
-            System.out.println("zxzDebug: [BeanService.getBean()]:");
 //            return (ParkActive)Naming.lookup(ConfigContext.getProtocolInfo(TPYYM,TPYDK,rmname));
+            System.out.println("正在getRegistry("+TPYYM + ", "+TPYDK + ")");
             Registry registry = LocateRegistry.getRegistry(TPYYM, TPYDK);
+            System.out.println("getRegistry("+TPYYM + ", "+TPYDK + ")" + "完成");
+            String[] list = registry.list();
+            for (String s : list) {
+                System.out.println(s);
+            }
             return (ParkActive)registry.lookup(rmname);
         }catch(Exception e){
             System.out.println("BeanService.getBean()异常了");
