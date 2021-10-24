@@ -10,6 +10,6 @@ public interface Worker extends ParkActive {
     public boolean start() throws RemoteException;
 //    public void waitWorking(String host, int port, String workerType) throws RemoteException;
 //    public void waitWorkingByService(String host, int port) throws RemoteException;
-    public WareHouse doTask(WareHouse inhouse) throws RemoteException;
+    public WareHouse receiveTask(WareHouse inhouse) throws RemoteException;
 
 }

@@ -92,18 +92,19 @@ public class BeanContext extends ServiceContext
             System.out.println("startWorker 出错了");
         }
     }
-    public static Worker getWorkerLocal(String sn){
-        Park park = getPark();
-        ObjValue service = null;
-        try {
-            service = park.findService(sn);
-        } catch (RemoteException e) {
-            System.out.println("getWorkerLocal 出错了");
-        }
-        String host = service.getString("host");
-        int port = service.getStringInt("port");
-        return getService(Worker.class, host, port, sn);
-    }
+    //TODO:当前版本不需要该函数了
+//    public static Worker getWorkerLocal(String sn){
+//        Park park = getPark();
+//        ObjValue service = null;
+//        try {
+//            service = park.findService(sn);
+//        } catch (RemoteException e) {
+//            System.out.println("getWorkerLocal 出错了");
+//        }
+//        String host = service.getString("host");
+//        int port = service.getStringInt("port");
+//        return getService(Worker.class, host, port, sn);
+//    }
 
 //    static void startInetServer()
 //    {

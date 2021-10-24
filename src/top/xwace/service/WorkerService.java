@@ -12,12 +12,14 @@ public class WorkerService extends UnicastRemoteObject implements Worker{
     String serviceHost;
     int servicePort;
     String serviceName;
-    public WorkerService(String host, int port, String name, String workerType) throws RemoteException {
+    //staticKey，用于把和worker去doTask无关的选项去掉，type先不去掉
+    String[] staticKey = {"id","sponsor","type"};
+    public WorkerService(String host, int port, String name, String... workerType) throws RemoteException {
         serviceHost = host;
         servicePort = port;
         //TODO: Type和Name有争议
         serviceName = name;
-        this.worker = new MigrantWorker(host, port, workerType);
+        this.worker = new MigrantWorker(workerType);
     }
 
 
@@ -28,7 +30,7 @@ public class WorkerService extends UnicastRemoteObject implements Worker{
     @Override
     public boolean registerToPark() throws RemoteException {
         Park park = BeanContext.getPark();
-        park.register(worker.getHost(), worker.getPort(), serviceName);
+        park.register(serviceHost, servicePort, serviceName);
         return true;
     }
 
@@ -42,8 +44,52 @@ public class WorkerService extends UnicastRemoteObject implements Worker{
     }
 
     @Override
-    public WareHouse doTask(WareHouse inhouse) throws RemoteException {
-        return new WareHouse("Hello","Distributed System!");
+    public WareHouse receiveTask(WareHouse inhouse) throws RemoteException {
+        int taskid = (int) inhouse.get("id");
+        //清洗数据
+        boolean isFormatValid = true;
+//        System.out.println("正在receiveTask");
+        for (String s : staticKey) {
+            if(!inhouse.containsKey(s)) {
+                isFormatValid = false;
+            }
+            if(!s.equals("type")) inhouse.remove(s);
+        }
+        if(!isFormatValid) {
+            System.out.println("receiveTask出错，出错原因：wronginputformat");
+            return dealError(inhouse, "wronginputformat");
+        }
+
+        //检验是否在包含的计算服务内
+        boolean isTypeValid = false;
+        String[] type = worker.getWorkerType();
+        for (String s : type) {
+            if(s.equals(inhouse.get("type"))) isTypeValid = true;    //放行
+        }
+        if(!isTypeValid) {
+            System.out.println("receiveTask出错，出错原因：wrongservicetype");
+            return dealError(inhouse, "wrongservicetype") ;
+        }
+        //Filter之后仍然valid，则呼唤worker执行doTask
+
+        WareHouse outhouse = worker.doTask(inhouse);
+
+        //封装上层信息，返回给client。注意这里只需要put一下请求的id就行了，不需要sponsor了
+        outhouse.put("id", taskid);
+        return outhouse;
+    }
+
+    public WareHouse dealError(WareHouse wh, String type) {
+        WareHouse ret = null;
+        if(type == "wronginputformat") {
+            ret = new WareHouse("status", "error");
+            ret.put("errordetail", "wrong data format");
+        }
+        if(type == "wrongservicetype") {
+            ret = new WareHouse("status", "error");
+            ret.put("errordetail", "wrong service type");
+        }
+        return ret;
     }
 }
 
