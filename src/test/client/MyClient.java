@@ -15,6 +15,7 @@ import java.rmi.RemoteException;
 *   必须有type，代表请求的计算类型是什么
 *
 * */
+
 public class MyClient {
     public static void main(String[] args) {
 //        Worker service = BeanContext.getWorkerLocal("WorkerService");
