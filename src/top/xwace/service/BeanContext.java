@@ -4,16 +4,12 @@ import top.xwace.ObjValue;
 import top.xwace.park.Park;
 
 import java.rmi.RemoteException;
-import java.rmi.Remote;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.Map;
 
 public class BeanContext extends ServiceContext
 {
-//    public static void setConfigFile(String configFile){
-//        ConfigContext.configFile = configFile;
-//    }
+    public static void setConfigFile(String configFile){
+        ConfigContext.configFile = configFile;
+    }
 
     //get all config msg
 //    public static ParkLocal getPark(String host, int port, String sn, String[][] servers){
