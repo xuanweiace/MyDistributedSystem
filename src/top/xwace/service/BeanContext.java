@@ -1,6 +1,8 @@
 package top.xwace.service;
 
 import top.xwace.ObjValue;
+import top.xwace.loadbalance.BalanceService;
+import top.xwace.loadbalance.Balancer;
 import top.xwace.park.Park;
 
 import java.rmi.RemoteException;
@@ -11,19 +13,6 @@ public class BeanContext extends ServiceContext
         ConfigContext.configFile = configFile;
     }
 
-    //get all config msg
-//    public static ParkLocal getPark(String host, int port, String sn, String[][] servers){
-//        return DelegateConsole.bind(ParkLocal.class, new ParkProxy(host, port, servers, sn));
-//    }
-//
-//    public static ParkLocal getPark(String host, int port, String[][] servers){
-//        return getPark(host, port, ConfigContext.getParkService(), servers);
-//    }
-//
-//    public static ParkLocal getPark(){
-//        String[][] parkcfg = ConfigContext.getParkConfig();
-//        return getPark(parkcfg[0][0], Integer.parseInt(parkcfg[0][1]), parkcfg);//input serverconfiglist string[][]
-//    }
     public static Park getPark(String host, int port, String sn, String[][] servers) {
         return getService(Park.class, host, port, sn);
     }
@@ -88,19 +77,61 @@ public class BeanContext extends ServiceContext
             System.out.println("startWorker 出错了");
         }
     }
-    //TODO:当前版本不需要该函数了
-//    public static Worker getWorkerLocal(String sn){
-//        Park park = getPark();
-//        ObjValue service = null;
-//        try {
-//            service = park.findService(sn);
-//        } catch (RemoteException e) {
-//            System.out.println("getWorkerLocal 出错了");
-//        }
-//        String host = service.getString("host");
-//        int port = service.getStringInt("port");
-//        return getService(Worker.class, host, port, sn);
-//    }
+    public static Worker getWorkerLocal(String sn){
+        Park park = getPark();
+        ObjValue service = null;
+        try {
+            service = park.findService(sn);
+        } catch (RemoteException e) {
+            System.out.println("getWorkerLocal 出错了");
+        }
+        String host = service.getString("host");
+        int port = service.getStringInt("port");
+        return getService(Worker.class, host, port, sn);
+    }
+
+    public static void startBalancer() {
+        String[][] parkcfg = {{"localhost", "3000"}};
+        startBalancer(parkcfg[0][0], Integer.parseInt(parkcfg[0][1]), parkcfg);
+    }
+
+    public static void startBalancer(String host, int port, String[][] servers)
+    {
+//        startPark(host, port, ConfigContext.getParkService(), servers);
+        startBalancer(host, port, "BalanceService", servers);
+    }
+    public static void startBalancer(String host, int port, String sn, String[][] servers)
+    {
+        BalanceService balanceService = null;
+        try{
+            balanceService = new BalanceService(host, port, servers, sn);
+            startService(host, port, sn, balanceService);
+        }catch(RemoteException e){//new ParkService throw
+            System.out.println("startPark 出错了");
+        }
+        System.out.println("正在注册到Park...");
+        try {
+            balanceService.registerToPark();
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        } finally {
+            System.out.println("BalanceService 注册完成...");
+        }
+    }
+
+    public static Balancer getBalancerLocal(String sn){
+        Park park = getPark();
+        ObjValue service = null;
+        try {
+            service = park.findService(sn);
+        } catch (RemoteException e) {
+            System.out.println("getBalancerLocal 出错了");
+        }
+        String host = service.getString("host");
+        int port = service.getStringInt("port");
+        return getService(Balancer.class, host, port, sn);
+    }
+
 
 //    static void startInetServer()
 //    {

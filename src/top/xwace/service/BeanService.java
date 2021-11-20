@@ -38,7 +38,7 @@ public class BeanService {
         try{
 //            if(ConfigContext.getTMOT()>0l) //timeout
 //                System.setProperty(ConfigContext.getQSXYSJ(), ConfigContext.getTMOT()+"");
-            System.out.println("zxzDebug: [BeanService.getBean()]: " + "TPYYM: "+TPYYM+", TPYDK: "+TPYDK+", rmname: "+rmname);
+//            System.out.println("zxzDebug: [BeanService.getBean()]: " + "TPYYM: "+TPYYM+", TPYDK: "+TPYDK+", rmname: "+rmname);
 //            return (ParkActive)Naming.lookup(ConfigContext.getProtocolInfo(TPYYM,TPYDK,rmname));
             System.out.println("正在getRegistry("+TPYYM + ", "+TPYDK + ")");
             Registry registry = LocateRegistry.getRegistry(TPYYM, TPYDK);

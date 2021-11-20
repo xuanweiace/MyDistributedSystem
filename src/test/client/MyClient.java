@@ -18,7 +18,7 @@ import java.rmi.RemoteException;
 
 public class MyClient {
     public static void main(String[] args) {
-//        Worker service = BeanContext.getWorkerLocal("WorkerService");
+        Worker service = BeanContext.getWorkerLocal("WorkerService");
         Park park = BeanContext.getPark();
         WareHouse t0 = new WareHouse("id",0);
         t0.put("sponsor","zxz");
@@ -41,12 +41,14 @@ public class MyClient {
         } catch (RemoteException e) {
             e.printStackTrace();
         }
-//        try {
-//            System.out.println("获得计算结果：");
-//            WareHouse ans = service.receiveTask(new WareHouse());
-//            System.out.println(ans);
-//        } catch (RemoteException e) {
-//            e.printStackTrace();
-//        }
+
+        //单独获取计算服务
+        try {
+            System.out.println("获得计算结果：");
+            WareHouse ans = service.receiveTask(t0);
+            System.out.println(ans);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
     }
 }

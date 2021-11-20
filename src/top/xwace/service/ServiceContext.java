@@ -9,8 +9,8 @@ class ServiceContext extends BeanService
     static <I extends ParkActive> void startService(String host, int port, String sn, I i)
     {
         try{
-            System.out.println("startService: " + i.getClass().getName());
-            System.out.println("zxzDebug: [ServiceContext.startService()], port: " + port + ", sn: " + sn);
+//            System.out.println("startService: " + i.getClass().getName());
+            System.out.println("[ServiceContext.startService()], port: " + port + ", sn: " + sn);//zxzDebug:
             putBean(host,false,port,sn,i);
         }catch(Exception e){
             System.out.println("startService: Catch Exception");
@@ -32,7 +32,7 @@ class ServiceContext extends BeanService
     //获取服务，service层
     //这里虽然参数a没啥用，但是为了获取泛型I，所以要传进来
     //分布式缓存里面，sn指的是"CacheFacadeService", I: Cache.class(远程Cache的class)
-    static <I extends ParkActive> I getService(Class<I> a, String host, int port, String sn){
+    public static <I extends ParkActive> I getService(Class<I> a, String host, int port, String sn){
         I i=null;
         try{
             i=(I)getBean(host,port,sn);//具体去pojo层取实体

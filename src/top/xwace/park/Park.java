@@ -5,6 +5,7 @@ import top.xwace.park.exception.LeaderException;
 import top.xwace.service.WareHouse;
 
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 
 //提供哪些接口让别人访问
 //当前版本，对外接口只有register， unregister，setTask
@@ -14,8 +15,8 @@ public interface Park extends ParkActive
 {
     public boolean register(String host, int port, String sn) throws RemoteException;
     public boolean unregister(String host, int port, String sn)throws RemoteException;
-    //在当前版本不作为对外接口
-//    public ObjValue findService(String sn) throws RemoteException;
+    public ObjValue findService(String sn) throws RemoteException;
+    public ArrayList<ObjValue> findSomeServices(String sn, int num) throws RemoteException;
     public ObjValue setTask(String sn, int num, WareHouse... inhouses) throws RemoteException;
 
 

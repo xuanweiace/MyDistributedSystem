@@ -18,8 +18,6 @@ import java.io.File;
  */
 public class ConfigContext
 {
-    private static String QSXYSJ=null,YMMZ=null,RZDY=null,YCDYXY=null,DMY=null,AQCL=null,POLICY=null,LSML=null,SERVICEONWORKER=null;
-    private static long TMOT=-1;
     static String configFile = "config.xml";
     private static ObjValue USERS = null;
 
@@ -27,28 +25,10 @@ public class ConfigContext
     static String getYCDYXY(){//rmi://  rmi协议
         return "rmi://";
     }
-//
-//    static String getProp(String propstr){
-//        return getMulBean().getString(propstr);
-//    }
 
     static String getProtocolInfo(String ym, int dk, String mc){
-        //getYCDYXY()是rmi://
         return getYCDYXY()+ym+":"+dk+"/"+mc;
     }
-
-    //timeout
-//    static long getTMOT(){
-//        if(TMOT==-1)
-//            TMOT = getSecTime(new Double(getConfig("WORKER","TIMEOUT","TRUE","0")));
-//        return TMOT;
-//    }
-
-//    static boolean getServiceFlag(){
-//        if(SERVICEONWORKER==null)
-//            SERVICEONWORKER = getConfig("WORKER","SERVICE", null, "false");
-//        return Boolean.parseBoolean(SERVICEONWORKER);
-//    }
 
     static long getSecTime(Double hours)
     {
@@ -59,15 +39,16 @@ public class ConfigContext
     static String[][] getParkConfig()
     {
         String servers = getConfig("PARK","SERVERS",null);
-        System.out.println("zxzDebug: [ConfigContext.getParkConfig()]" + servers);
+
+        System.out.println("[ConfigContext.getParkConfig()]" + servers);//zxzDebug:
         return getServerFromStr(servers);
     }
 
     static String getParkService()
     {
-        System.out.println("zxzDebug: [ConfigContext.getParkService()]" + "ParkService");
+        System.out.println("[ConfigContext.getParkService()]" + "ParkService");//zxzDebug:
 
-        return getConfig("PARK","SERVICE",null);
+    return getConfig("PARK","SERVICE",null);
     }
 
     static String[] getCtorService()
@@ -83,7 +64,7 @@ public class ConfigContext
     static String[][] getCacheConfig()
     {
         String servers = getConfig("CACHE","SERVERS",null);
-        System.out.println("zxzDebug: [ConfigContext.getCacheConfig()]" + servers);
+        System.out.println("[ConfigContext.getCacheConfig()]" + servers);//zxzDebug:
         return getServerFromStr(servers);
     }
 
@@ -208,7 +189,6 @@ public class ConfigContext
             String[] hostport=serverarr[n].split(":");
             sarr[n]=hostport;
         }
-
         return sarr;
     }
 

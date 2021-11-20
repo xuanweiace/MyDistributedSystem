@@ -1,67 +1,34 @@
-package top.xwace.service;
+package top.xwace.loadbalance;
 
 import top.xwace.ObjValue;
 import top.xwace.park.Park;
-import top.xwace.park.ParkLeader;
+import top.xwace.service.BeanContext;
+import top.xwace.service.WareHouse;
+import top.xwace.service.Worker;
 
+import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
-import java.rmi.RemoteException;//ServiceException
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Supplier;
 
-public class ParkService extends UnicastRemoteObject implements Park {
-//    private ParkObjValue parkinfo = new ParkObjValue();
-//    private static ObjValue hbinfo = new ObjValue();
-    //private Lock lk = new ReentrantLock();
-//    private ReadWriteLock rwlk = new ReentrantReadWriteLock();
-    private ParkLeader pl = null;
-    private int serviceCalledTimes = 0;
-    public ParkService(String host, int port, String[][] servers, String parkService) throws RemoteException{
-//        System.out.println("zxzDebug: [ParkService的构造函数] new 了一个 ParkService");
-        this.pl = new ParkLeader(host,port,servers,parkService);
-        //暂时不考虑高可用
-//        pl.wantBeMaster(this);//选一个master出来
+public class BalanceService extends UnicastRemoteObject implements Balancer{
+    String serviceHost;
+    int servicePort;
+    String serviceName = "BalanceService";
+    String[][] servers;
+
+    public BalanceService() throws RemoteException {
+    }
+    public BalanceService(String host, int port, String[][] servers, String servicename) throws RemoteException {
+        this.serviceHost = host;
+        this.servicePort = port;
+        this.servers = servers;
+        this.serviceName = servicename;
     }
 
-    @Override
-    public boolean register(String host, int port, String sn) {
-        ObjValue objValue = new ObjValue();
-        objValue.setString("host", host);
-        objValue.setString("port", Integer.toString(port));
-        objValue.setString("sn", sn);
-        pl.regisServiceObj(objValue);
-        return true;
-    }
-
-    @Override
-    public boolean unregister(String host, int port, String sn) {
-        ObjValue objValue = new ObjValue();
-        objValue.setString("host", host);
-        objValue.setString("port", Integer.toString(port));
-        objValue.setString("sn", sn);
-        pl.unregisServiceObj(objValue);
-        return false;
-    }
-
-    //host:port-name
-    @Override
-    public ObjValue findService(String sn) throws RemoteException {
-        ArrayList<ObjValue> services = pl.findService(sn);
-        serviceCalledTimes++;
-        return selectService(services);
-    }
-
-    @Override
-    public ArrayList<ObjValue> findSomeServices(String sn, int num) throws RemoteException {
-        ArrayList<ObjValue> services = pl.findService(sn);
-        return new ArrayList<>(services.subList(0, num));
-    }
-
-    //去调用findService
-    //TODO:下一版本改这里
     @Override
     public ObjValue setTask(String sn, int num, WareHouse... inhouses) throws RemoteException {
         ObjValue ret = new ObjValue();
@@ -69,7 +36,7 @@ public class ParkService extends UnicastRemoteObject implements Park {
             //TODO：inhouses还是数组[]吗？
             System.out.println("danduchuli");
         }
-        ArrayList<ObjValue> services = pl.findService(sn);
+        ArrayList<ObjValue> services = askServiceList(sn, num);
         System.out.println(services);
         CompletableFuture<WareHouse>[] futures = new CompletableFuture[services.size()];
 
@@ -122,12 +89,10 @@ public class ParkService extends UnicastRemoteObject implements Park {
                         wh_pool[finalJ] = e;
                     });
                     System.out.println("第"+j+"个worker完成了计算: " + wh_pool[j]);
-                    //TODO: 需要单测
                     ret.put(wh_pool[j].get("id"), wh_pool[j].getCopy());
                     wh_pool[j] = null;
                     has[j] = false;
                     finishTask++;
-//                    futures[j].cancel(true);
                 }
             }
         }
@@ -143,37 +108,21 @@ public class ParkService extends UnicastRemoteObject implements Park {
         }
 
         return ret;
-//        for (int i = 0; i < inhouses.length;) {
-//            ObjValue service = findService(sn);
-//            String host = service.getString("host");
-//            int port = service.getStringInt("port");
-//            //得到workerService
-//            Worker workerService = BeanContext.getService(Worker.class, host, port, sn);
-//            for(int j = 0; j<wks.length; j++) {
-//                if(futures[j].isDone()) {
-//                    i++;
-//                }
-//            }
-//            int finalI = i;
-//            futures[i] = CompletableFuture.supplyAsync(new Supplier<WareHouse>() {
-//                @Override
-//                public WareHouse get() {
-//                    System.out.println("===task" + inhouses[finalI].get("id") + " finish===");
-//                    WareHouse ret = null;
-//                    try {
-//                        ret = workerService.receiveTask(inhouses[finalI]);
-//                    } catch (RemoteException e) {
-//                        e.printStackTrace();
-//                    }
-//                    System.out.println("===task2 finish===");
-//                    return ret;
-//                }
-//            }, executor);
-//        }
+
+
     }
 
-    public ObjValue selectService(ArrayList<ObjValue> services) {
-        int len = services.size();
-        return services.get(serviceCalledTimes%len);
+    @Override
+    public ArrayList<ObjValue> askServiceList(String sn, int num) throws RemoteException {
+        Park pk = BeanContext.getPark();
+        ArrayList<ObjValue> someServices = pk.findSomeServices(sn, num);
+        return someServices;
+    }
+
+    @Override
+    public boolean registerToPark() throws RemoteException {
+        Park park = BeanContext.getPark();
+        park.register(serviceHost, servicePort, serviceName);
+        return true;
     }
 }

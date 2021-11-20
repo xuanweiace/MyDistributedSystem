@@ -1,5 +1,6 @@
 package test;
 
+import java.util.ArrayList;
 import java.util.concurrent.*;
 import java.util.function.Supplier;
 
@@ -13,7 +14,7 @@ public class forfun {
 //        System.out.println(p);
         forfun A = new forfun();
         try {
-            A.test2();
+//            A.test2();
 //            A.test1();
 //            A.test3();
             System.out.println("结束了");
@@ -23,7 +24,20 @@ public class forfun {
         }
 
 
+        A.test4();
+
+     }
+
+    private void test4() {
+        ArrayList<Integer> arrayList = new ArrayList<Integer>();
+        arrayList.add(1);
+        arrayList.add(2);
+        arrayList.add(3);
+        arrayList.add(4);
+        System.out.println(arrayList);
+        System.out.println(arrayList.subList(0,3));
     }
+
     public void test1() throws Exception {
 
         System.out.println("main函数开始执行");
